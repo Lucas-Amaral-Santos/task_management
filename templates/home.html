@@ -1,0 +1,93 @@
+{%- extends "base.html" -%}
+
+{%- block content -%}
+{% for message in get_flashed_messages() %}
+        <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+    <div class="jumbo">
+        <h1 class="display-4">Task Management App</h1>
+        <p class="lead">Manage your tasks efficiently and effectively.</p>
+
+        <h2>Olá, {{ session.get('name') }}!</h2>
+        <h5 class="text-black-50">{{session.get('username')}}</h5>
+
+        <button><a href="{{ url_for('create_task') }}" class="btn btn-primary btn-lg">Create Task</a></button>
+
+        
+
+        <table class="table table-striped">
+            <tr class="table-primary">
+                <th>Tasks</th>
+                <th>Date created</th>
+                <th>Due Date</th>
+                <th>Sector</th>
+                <th>Responsible</th>
+                <th>Created by</th>
+                <th>Status</th>
+                <th>Ações</th>
+                <th></th>
+            </tr>
+            {% for task in tasks %}
+            <tr>                
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.date_created }}</td>
+                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.sector }}</td>
+                    <td>{{ task.responsible }}</td>
+                    <td>{{ task.created_by }}</td>  
+                    <td>{{ task.status[-1].status }}</td>  
+                    <td>
+                        {% if task.status[-1].status == 'Não Iniciada' %}
+                            <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Iniciar</a>
+                        {% elif task.status[-1].status == 'Em Andamento' %}
+                            <a href="{{ url_for('pause_task', task_id=task.id) }}" class="btn btn-sm btn-info">Pausar</a>
+                            <a href="{{ url_for('finalize_task', task_id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
+                        {% elif task.status[-1].status == 'Pausada' %}
+                            <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Continuar</a>
+                            <a href="{{ url_for('finalize_task', task_id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
+                        {% elif task.status[-1].status == 'Concluída' %}
+                            <p class="btn btn-sm btn-success">Concluída</p>
+                        {% endif %}
+                        {% if task.status[-1].status != 'Concluída' %}
+                            <a href="{{ url_for('update', id=task.id) }}" class="btn btn-sm btn-warning">Update</a>
+                            <a href="{{ url_for('delete', id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>   
+                        {% endif %}
+                        <td><a type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTask{{ task.id }}">
+                        ...
+                        </a></td>
+
+                            <!-- Modal -->
+                <div class="modal fade" id="modalTask{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">{{task.title}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><i>Created by {{task.created_by}}</i></p>
+                        <p><b>Status: </b>{{task.status[-1].status}}</p>
+                        <p><b>Setor: </b>{{task.setor}}</p>
+                        <p><b>Responsável: </b>{{task.responsible}}</p>
+                        <p><b>Data de Entrega:</b> {{task.due_date.date()}}</p>
+
+                        <p><b>Descrição:</b><br>
+                        <p>{{task.description}}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                    </td>         
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+
+{%- endblock -%}

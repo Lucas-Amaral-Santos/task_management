@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Create Task</h2>
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+
+<form method="POST" action="{{ url_for('create_task') }}">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+
+        <label for="description">Task Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+
+        <label for="due_date">Due Date</label>
+        <input type="date" class="form-control" id="due_date" name="due_date" required>
+        
+        <label for="sector">sector</label>
+        <select class="form-control" id="sector" name="sector">
+            <option value="">-------</option>
+            {% for sector in dropdown_sectors %}
+                <option value="{{ sector.id }}">{{ sector }}</option>
+            {% endfor %}
+        </select>
+
+
+        <label for="responsible">Responsible</label>
+        <select class="form-control" id="responsible" name="responsible">
+            <option value="">-------</option>
+            {% for user in dropdown_users %}
+                <option value="{{ user }}">{{ user.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Task</button>
+</form>
+{% endblock %}

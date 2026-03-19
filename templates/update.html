@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+    <div class="alert alert-info">{{ message }}</div>
+{% endfor %}
+<h2>Update Task</h2>
+<form method="POST" action="{{ url_for('update', id=task.id) }}">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" value="{{ task.title}}" class="form-control" id="title" name="title" required>
+
+        <label for="description">Task Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3">{{ task.description }}"</textarea>
+
+        <label for="due_date">Due Date</label>
+        <input type="date" value="{{ task.due_date.strftime('%Y-%m-%d') }}" class="form-control" id="due_date" name="due_date" required>
+        
+        <label for="sector">sector</label>
+        <select class="form-control" id="sector" name="sector">
+            <option value="">-------</option>
+            {% for sector in dropdown_sectors %}
+                <option value="{{ sector.id }}"
+                    {% if task.sector_id == sector.id %}
+                        selected
+                    {% endif %}
+                    >
+                    {{ sector.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+
+        <label for="responsible">Responsible</label>
+        <select class="form-control" value="{{task.responsible}}" id="responsible" name="responsible">
+            <option value="">-------</option>
+            {% for user in dropdown_users %}
+                <option value="{{ task.responsible }}"
+                    {% if task.responsible == user %}
+                        selected
+                    {% endif %}
+                    >
+                    {{ user.name }}
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Task</button>
+</form>
+{% endblock %}

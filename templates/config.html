@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div>
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+    <div>
+        <h1>Tabela Setores</h1>
+        <table class="table table-striped">
+            <tr class="table-primary">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Ações</th>
+            </tr>
+            {% for sector in sectors %}
+            <tr>                
+                    <td>{{ sector.id }}</td>
+                    <td>{{ sector.name }}</td>    
+                    <td>
+                        <a href="{{ url_for('delete_sector', sector_id=sector.id) }}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Nome do setor</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <button type="submit" name='submit' value='sector' class="btn btn-primary">Criar setor</button>
+        </form>
+    </div>
+    <div>
+        <h1>Tabela Status</h1>
+        <table class="table table-striped">
+            <tr class="table-primary">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Ações</th>
+            </tr>
+            {% for status in statuses %}
+            <tr>                
+                    <td>{{ status.id }}</td>
+                    <td>{{ status.name }}</td>    
+                    <td>
+                        <a href="{{ url_for('delete_status', status_id=status.id) }}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Nome do status</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <button type="submit" name='submit' value="status" class="btn btn-primary">Criar status</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
