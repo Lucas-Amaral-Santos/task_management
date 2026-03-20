@@ -30,8 +30,8 @@
             {% for task in tasks %}
             <tr>                
                     <td>{{ task.title }}</td>
-                    <td>{{ task.date_created }}</td>
-                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.date_created.date().strftime("%d/%m/%Y") }}</td>
+                    <td>{{ task.due_date.date().strftime("%d/%m/%Y") }}</td>
                     <td>{{ task.sector }}</td>
                     <td>{{ task.responsible }}</td>
                     <td>{{ task.created_by }}</td>  
