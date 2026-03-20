@@ -32,10 +32,10 @@
 
 
         <label for="responsible">Responsible</label>
-        <select class="form-control" value="{{task.responsible}}" id="responsible" name="responsible">
+        <select class="form-control" id="responsible" name="responsible">
             <option value="">-------</option>
             {% for user in dropdown_users %}
-                <option value="{{ task.responsible }}"
+                <option value="{{ user.username }}"
                     {% if task.responsible == user %}
                         selected
                     {% endif %}

@@ -19,7 +19,6 @@ class StatusTask(db.Model):
     
     task = db.relationship('Task', foreign_keys=[task_id], back_populates='status', lazy=True)
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
@@ -36,7 +35,6 @@ class User(db.Model):
     def __str__(self):
         return self.username
 
-
 class Sector(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False, unique=False)
@@ -50,7 +48,6 @@ class Sector(db.Model):
     
     def __str__(self):
         return self.name
-
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -70,7 +67,6 @@ class Task(db.Model):
     def __repr__(self):
         return '<Task %r>' % self.title
 
-
 @app.route('/delete_sector/<int:sector_id>')
 def delete_sector(sector_id):
     sector = Sector.query.get(sector_id)
@@ -85,7 +81,6 @@ def delete_sector(sector_id):
     else:
         flash('Sector not found.')
     return redirect(url_for('config'))
-
 
 @app.route('/config', methods=['GET', 'POST'])
 def config():
@@ -128,7 +123,6 @@ def register():
             return redirect(url_for('register'))
     else:
         return render_template('register.html', dropdown_sectors=dropdown_sectors)
-
 
 @app.route('/create_task', methods=['GET', 'POST'])
 def create_task():
@@ -207,8 +201,6 @@ def finalize_task(task_id):
         db.session.rollback()
         flash('Error creating task: ' + str(e))
         return redirect(url_for('home'))
-
-
 
 @app.route('/')
 def home():
