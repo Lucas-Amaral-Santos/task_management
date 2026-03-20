@@ -11,7 +11,7 @@
         <input type="text" value="{{ task.title}}" class="form-control" id="title" name="title" required>
 
         <label for="description">Task Description</label>
-        <textarea class="form-control" id="description" name="description" rows="3">{{ task.description }}"</textarea>
+        <textarea class="form-control" id="description" name="description" rows="3">{{ task.description }}</textarea>
 
         <label for="due_date">Due Date</label>
         <input type="date" value="{{ task.due_date.strftime('%Y-%m-%d') }}" class="form-control" id="due_date" name="due_date" required>
