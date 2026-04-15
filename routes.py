@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from sqlalchemy import or_
+from datetime import datetime, time
 from functools import wraps
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -10,6 +12,13 @@ db = SQLAlchemy(app)
 
 app.secret_key = 'supersecretkey'
 
+class StatusUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+    date_changed = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    user = db.relationship('User', foreign_keys=[user_id], back_populates='status', lazy=True)
 
 class StatusTask(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -28,6 +37,8 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     
     sector = db.relationship('Sector', foreign_keys=[sector_id], backref='users', lazy=True)
+    status = db.relationship('StatusUser', back_populates='user', cascade='all, delete-orphan', lazy=True)
+
     
     def __repr__(self):
         return self.username
@@ -113,8 +124,10 @@ def register():
         is_admin = True if request.form['is_admin'] == "on" else False
 
         new_user = User(username=username, password=password, name=name, sector=sector, is_admin=is_admin)
+        new_status_user = StatusUser(status='Disponível', user=new_user)
         try:
             db.session.add(new_user)
+            db.session.add(new_status_user)
             db.session.commit()
             flash('User registered successfully!')
             return redirect(url_for('register'))
@@ -123,6 +136,40 @@ def register():
             return redirect(url_for('register'))
     else:
         return render_template('register.html', dropdown_sectors=dropdown_sectors)
+
+
+@app.route('/create_task_info')
+def create_task_info():
+    user = User.query.filter_by(username=session.get('username')).first()
+    
+    if not user:
+        flash('Usuário não autenticado.')
+        return redirect(url_for('login'))
+    
+    if user.is_admin:
+        tasks = Task.query.order_by(Task.date_created).all()
+    else:
+        tasks = Task.query.order_by(Task.date_created).where(Task.responsible == user or Task.created_by == user or Task.sector == user.sector).all()
+        
+    
+    task_title = "Tarefa criada para informática"
+    task_description = "Tarefa criada para o setor de informática, sem descrição detalhada."
+    task_due_date = datetime.today()
+    task_sector = Sector.query.filter_by(name="Informática").first()
+    task_responsible = User.query.filter_by(username="guilherme").first()
+    new_task = Task(title=task_title, description=task_description, due_date=task_due_date, sector=task_sector, responsible=task_responsible, created_by=user)
+    new_status_task = StatusTask(status='Não Iniciada', task=new_task)
+    try:
+        db.session.add(new_task)
+        db.session.add(new_status_task)
+        db.session.commit()
+        flash('Task created successfully!')
+        return redirect(url_for('home'))
+    except Exception as e:
+        db.session.rollback()
+        flash('Error creating task: ' + str(e))
+        return redirect(url_for('create_task'))
+    
 
 @app.route('/create_task', methods=['GET', 'POST'])
 def create_task():
@@ -159,11 +206,20 @@ def create_task():
 
 @app.route('/init/<int:task_id>')
 def init_task(task_id):
+    user = User.query.filter_by(username=session.get('username')).first()
+    
+    if not user:
+        flash('Usuário não autenticado.')
+        return redirect(url_for('login'))
+    
+    
     task = Task.query.get(task_id)
     new_status_task = StatusTask(status='Em Andamento', task=task)
+    new_status_user = StatusUser(status='Ocupado', user=user)
     try:
         db.session.add(task)
         db.session.add(new_status_task)
+        db.session.add(new_status_user)
         db.session.commit()
         flash('Task created successfully!')
         return redirect(url_for('home'))
@@ -174,11 +230,19 @@ def init_task(task_id):
     
 @app.route('/pause/<int:task_id>')
 def pause_task(task_id):
+    user = User.query.filter_by(username=session.get('username')).first()
+    
+    if not user:
+        flash('Usuário não autenticado.')
+        return redirect(url_for('login'))
+    
     task = Task.query.get(task_id)
     new_status_task = StatusTask(status='Pausada', task=task)
+    new_status_user = StatusUser(status='Disponível', user=user)
     try:
         db.session.add(task)
         db.session.add(new_status_task)
+        db.session.add(new_status_user)
         db.session.commit()
         flash('Task created successfully!')
         return redirect(url_for('home'))
@@ -189,11 +253,19 @@ def pause_task(task_id):
     
 @app.route('/finalize/<int:task_id>')
 def finalize_task(task_id):
+    user = User.query.filter_by(username=session.get('username')).first()
+    
+    if not user:
+        flash('Usuário não autenticado.')
+        return redirect(url_for('login'))
+    
     task = Task.query.get(task_id)
     new_status_task = StatusTask(status='Concluída', task=task)
+    new_status_user = StatusUser(status='Disponível', user=user)
     try:
         db.session.add(task)
         db.session.add(new_status_task)
+        db.session.add(new_status_user)
         db.session.commit()
         flash('Task created successfully!')
         return redirect(url_for('home'))
@@ -202,17 +274,59 @@ def finalize_task(task_id):
         flash('Error creating task: ' + str(e))
         return redirect(url_for('home'))
 
+
 @app.route('/')
 def home():
     user = User.query.filter_by(username=session.get('username')).first()
+
     if not user:
         flash('Usuário não autenticado.')
         return redirect(url_for('login'))
 
-    tasks = Task.query.order_by(Task.date_created).all()
-    print('Tasks retrieved from database:')
-    print(tasks)
-    return render_template('home.html', tasks=tasks)
+    dropdown_sectors = Sector.query.all()
+    sector = request.args.get("sector", "").strip()
+    start_date = request.args.get("start_date", "").strip()
+    end_date = request.args.get("end_date", "").strip()
+
+    today = datetime.today().date().isoformat()
+
+    if user.is_admin:
+        query = Task.query
+    else:
+        query = Task.query.filter(
+            or_(
+                Task.responsible == user,
+                Task.created_by == user,
+                Task.sector == user.sector
+            )
+        )
+
+    if sector:
+        sector_obj = Sector.query.filter(Sector.name == sector).first()
+        query = query.filter(Task.sector == sector_obj)
+
+    if start_date:
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+        query = query.filter(Task.date_created >= start_date_obj)
+
+    if end_date:
+        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+        end_of_day = datetime.combine(end_date_obj.date(), time.max)
+        query = query.filter(Task.date_created <= end_of_day)
+
+    tasks = query.order_by(Task.date_created).all()
+
+    return render_template(
+        'home.html',
+        tasks=tasks,
+        sector=sector,
+        start_date=start_date,
+        end_date=end_date,
+        today=today,
+        dropdown_sectors=dropdown_sectors,
+        filters_active=bool(sector or start_date or end_date),
+        user=user
+    )
     
 @app.route('/delete/<int:id>')
 def delete(id):
@@ -235,7 +349,7 @@ def update(id):
         task.title = request.form['title']
         task.description = request.form['description']
         task.due_date = datetime.strptime(request.form['due_date'], '%Y-%m-%d')
-        task.sector = Sector.query.get(request.form['sector']) if request.form['sector'] else None
+        task.sector = Sector.query.get(request.form['sector'])
         task.responsible = User.query.filter_by(username=request.form['responsible']).first()
         try:
             db.session.commit()

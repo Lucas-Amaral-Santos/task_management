@@ -1,19 +1,42 @@
 {%- extends "base.html" -%}
 
 {%- block content -%}
-{% for message in get_flashed_messages() %}
+    {% for message in get_flashed_messages() %}
         <div class="alert alert-info">{{ message }}</div>
     {% endfor %}
     <div class="jumbo">
         <h1 class="display-4">Task Management App</h1>
         <p class="lead">Manage your tasks efficiently and effectively.</p>
 
-        <h2>Olá, {{ session.get('name') }}!</h2>
+        <h2>Olá, <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{user.status[-1].status}}">{{user.name}}</span>!</h2>
         <h5 class="text-black-50">{{session.get('username')}}</h5>
 
         <button><a href="{{ url_for('create_task') }}" class="btn btn-primary btn-lg">Create Task</a></button>
 
-        
+        <button><a href="{{ url_for('create_task_info') }}" class="btn btn-danger btn-lg">Create Task Info</a></button>
+
+        <p class="lead">Number of tasks: {{ tasks|length }}</p>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0">Tasks</h1>
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-toggle="modal"
+                data-target="#filterModal"
+                >
+                Filter tasks
+            </button>
+        </div>
+
+        {% if filters_active %}
+            <div class="alert alert-info">
+            Active filters:
+            {% if sector %}<strong>Sector:</strong> {{ sector }}{% endif %}
+            {% if start_date %} | <strong>From:</strong> {{ start_date }}{% endif %}
+            {% if end_date %} | <strong>To:</strong> {{ end_date }}{% endif %}
+            </div>
+        {% endif %}
 
         <table class="table table-striped">
             <tr class="table-primary">
@@ -35,7 +58,17 @@
                     <td>{{ task.sector }}</td>
                     <td>{{ task.responsible }}</td>
                     <td>{{ task.created_by }}</td>  
-                    <td>{{ task.status[-1].status }}</td>  
+                    <td>
+                        {% if task.status[-1].status == 'Não Iniciada' %}
+                            <p class="btn btn-outline-secondary">{{task.status[-1].status}}</p>
+                        {% elif task.status[-1].status == 'Em Andamento' %}
+                            <p class="btn btn-outline-primary">{{task.status[-1].status}}</p>
+                        {% elif task.status[-1].status == 'Pausada' %}
+                            <p class="btn btn-outline-warning">{{task.status[-1].status}}</p>
+                        {% elif task.status[-1].status == 'Concluída' %}
+                            <p class="btn btn-outline-success">Concluída</p>
+                        {% endif %}
+                    </td>
                     <td>
                         {% if task.status[-1].status == 'Não Iniciada' %}
                             <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Iniciar</a>
@@ -56,7 +89,62 @@
                         ...
                         </a></td>
 
-                            <!-- Modal -->
+
+                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                        <form method="GET" action="{{ url_for('home') }}">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter Tasks</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="sector" class="form-label">Sector</label>
+                                <select name="sector" id="sector" class="form-select">
+                                <option value="">All sectors</option>
+                                {% for sector in dropdown_sectors %}
+                                <option value="{{ sector }}" {{ "selected" if sector == task.sector else "" }}>{{ sector }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">Start date</label>
+                                <input
+                                type="date"
+                                name="start_date"
+                                id="start_date"
+                                class="form-control"
+                                value="{{ start_date or today }}"
+                                >
+                                <div class="form-text">Defaults to today: {{ today }}</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="end_date" class="form-label">End date</label>
+                                <input
+                                type="date"
+                                name="end_date"
+                                id="end_date"
+                                class="form-control"
+                                value="{{ end_date or today}}"
+                                >
+                            </div>
+                            </div>
+
+                            <div class="modal-footer">
+                            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">Clear</a>
+                            <button type="submit" class="btn btn-primary">Apply filters</button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+
+
+                <!-- Modal -->
                 <div class="modal fade" id="modalTask{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -69,7 +157,7 @@
                     <div class="modal-body">
                         <p><i>Created by {{task.created_by}}</i></p>
                         <p><b>Status: </b>{{task.status[-1].status}}</p>
-                        <p><b>Setor: </b>{{task.setor}}</p>
+                        <p><b>Setor: </b>{{task.sector.name if task.sector else 'N/A'}}</p>
                         <p><b>Responsável: </b>{{task.responsible}}</p>
                         <p><b>Data de Entrega:</b> {{task.due_date.date()}}</p>
 
@@ -88,6 +176,32 @@
         </table>
     </div>
 
+<script>
+document.getElementById("clearFilters").addEventListener("click", function () {
+    document.getElementById("sector").value = "";
+    document.getElementById("start_date").value = "";
+    document.getElementById("end_date").value = "";
+    window.location.href = "{{ url_for('home') }}";
+});
+</script>
 
+<style>
+    .task-status {
+        display: none;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #0d6efd;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+
+    .task-item:hover .task-status {
+        display: inline-block;
+    }
+</style>
 
 {%- endblock -%}
