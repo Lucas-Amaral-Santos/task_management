@@ -60,13 +60,13 @@
                     <td>{{ task.created_by }}</td>  
                     <td>
                         {% if task.status[-1].status == 'Não Iniciada' %}
-                            <p class="btn btn-outline-secondary">{{task.status[-1].status}}</p>
+                            <p class="btn btn-sm btn-outline-secondary">{{task.status[-1].status}}</p>
                         {% elif task.status[-1].status == 'Em Andamento' %}
-                            <p class="btn btn-outline-primary">{{task.status[-1].status}}</p>
+                            <p class="btn btn-sm btn-outline-primary">{{task.status[-1].status}}</p>
                         {% elif task.status[-1].status == 'Pausada' %}
-                            <p class="btn btn-outline-warning">{{task.status[-1].status}}</p>
+                            <p class="btn btn-sm btn-outline-warning">{{task.status[-1].status}}</p>
                         {% elif task.status[-1].status == 'Concluída' %}
-                            <p class="btn btn-outline-success">Concluída</p>
+                            <p class="btn btn-sm btn-outline-success">Concluída</p>
                         {% endif %}
                     </td>
                     <td>
