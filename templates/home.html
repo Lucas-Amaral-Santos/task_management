@@ -74,15 +74,13 @@
                             <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Iniciar</a>
                         {% elif task.status[-1].status == 'Em Andamento' %}
                             <a href="{{ url_for('pause_task', task_id=task.id) }}" class="btn btn-sm btn-info">Pausar</a>
-                            <a href="{{ url_for('finalize_task', task_id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
                         {% elif task.status[-1].status == 'Pausada' %}
                             <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Continuar</a>
-                            <a href="{{ url_for('finalize_task', task_id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
                         {% elif task.status[-1].status == 'Concluída' %}
                             <p class="btn btn-sm btn-success">Concluída</p>
                         {% endif %}
                         {% if task.status[-1].status != 'Concluída' %}
-                            <a href="{{ url_for('update', id=task.id) }}" class="btn btn-sm btn-warning">Update</a>
+                            <a href="{{ url_for('update', id=task.id) }}" class="btn btn-sm btn-warning">Finalizar</a>
                             <a href="{{ url_for('delete', id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>   
                         {% endif %}
                         <td><a type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTask{{ task.id }}">
@@ -165,6 +163,14 @@
                         <p>{{task.description}}</p>
                     </div>
                     <div class="modal-footer">
+                        <a href="{{ url_for('update', id=task.id) }}" class="btn btn-sm btn-secondary">Update</a>
+                        {% if task.status[-1].status == 'Em Andamento' %}
+                            <a href="{{ url_for('pause_task', task_id=task.id) }}" class="btn btn-sm btn-info">Pause</a>
+                            <a href="{{ url_for('update', id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
+                        {% elif task.status[-1].status == 'Pausada' %}
+                            <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Continuar</a>
+                            <a href="{{ url_for('update', id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
+                        {% endif %}
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
                     </div>
                     </div>

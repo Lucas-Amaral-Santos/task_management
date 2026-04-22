@@ -5,6 +5,15 @@
     <div class="alert alert-info">{{ message }}</div>
 {% endfor %}
 <h2>Update Task</h2>
+{% if task.status[-1].status == 'Não Iniciada' %}
+    <p class="btn btn-sm btn-outline-secondary">{{task.status[-1].status}}</p>
+{% elif task.status[-1].status == 'Em Andamento' %}
+    <p class="btn btn-sm btn-outline-primary">{{task.status[-1].status}}</p>
+{% elif task.status[-1].status == 'Pausada' %}
+    <p class="btn btn-sm btn-outline-warning">{{task.status[-1].status}}</p>
+{% elif task.status[-1].status == 'Concluída' %}
+    <p class="btn btn-sm btn-outline-success">Concluída</p>
+{% endif %}
 <form method="POST" action="{{ url_for('update', id=task.id) }}">
     <div class="form-group">
         <label for="title">Title</label>
@@ -44,6 +53,14 @@
             {% endfor %}
         </select>
     </div>
-    <button type="submit" class="btn btn-primary">Update Task</button>
+    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+
+    {% if task.status[-1].status == 'Em Andamento' %}
+        <a href="{{ url_for('pause_task', task_id=task.id) }}" class="btn btn-sm btn-info">Pausar</a>
+        <a href="{{ url_for('finalize_task', task_id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
+    {% elif task.status[-1].status == 'Pausada' %}
+        <a href="{{ url_for('init_task', task_id=task.id) }}" class="btn btn-sm btn-info">Continuar</a>
+        <a href="{{ url_for('finalize_task', task_id=task.id) }}" class="btn btn-sm btn-success">Finalizar</a>
+    {% endif %}
 </form>
 {% endblock %}
