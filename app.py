@@ -26,7 +26,8 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-app.secret_key = 'supersecretkey'
+app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
+
 
 class StatusUser(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
