@@ -18,27 +18,28 @@
         <h2>Olá, <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{user.status[-1].status}}">{{user.name}}</span>!</h2>
         <h5 class="text-black-50">{{session.get('username')}}</h5>
 
-        <a href="{{ url_for('create_task') }}" class="btn btn-primary btn-lg">Create Task</a>
+        <a href="{{ url_for('create_task') }}" class="btn btn-primary btn-lg">Abrir Chamado</a>
 
-        <a href="{{ url_for('create_task_info') }}" class="btn btn-danger btn-lg">Create Task Info</a>
+        <a href="{{ url_for('create_task_info') }}" class="btn btn-danger btn-lg">Abrir Chamado Genérico para Informática
+        </a>
 
         <p class="lead">Number of tasks: {{ tasks|length }}</p>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="h3 mb-0">Tasks</h1>
+            <h1 class="h3 mb-0">Tarefas</h1>
             <button
                 type="button"
                 class="btn btn-primary"
                 data-toggle="modal"
                 data-target="#filterModal"
                 >
-                Filter tasks
+                Filtrar
             </button>
         </div>
 
         {% if filters_active %}
             <div class="alert alert-info">
-            Active filters:
+            Filtros ativos:
             {% if sector %}<strong>Sector:</strong> {{ sector }}{% endif %}
             {% if start_date %} | <strong>From:</strong> {{ start_date }}{% endif %}
             {% if end_date %} | <strong>To:</strong> {{ end_date }}{% endif %}
@@ -47,12 +48,12 @@
 
         <table class="table table-striped">
             <tr class="table-primary">
-                <th>Tasks</th>
-                <th>Date created</th>
-                <th>Due Date</th>
-                <th>Sector</th>
-                <th>Responsible</th>
-                <th>Created by</th>
+                <th>Tarefas</th>
+                <th>Data de Criação</th>
+                <th>Data de Vencimento</th>
+                <th>Setor</th>
+                <th>Responsável</th>
+                <th>Criado por</th>
                 <th>Status</th>
                 <th>Ações</th>
                 <th></th>
