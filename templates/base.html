@@ -20,9 +20,11 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="{{ url_for('home') }}"><i class="fa-solid fa-house"></i> Início</a>
                     </li>
+                    {% if session.is_admin %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('config') }}"><i class="fa-solid fa-table"></i> Tabelas Auxiliares</a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         {% if session.is_admin or not session.has_users %}
                             <a class="nav-link" href="{{ url_for('register') }}"><i class="fa-solid fa-user-plus"></i> Registrar</a>

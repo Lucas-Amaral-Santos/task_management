@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-app.config['DEBUG'] = False  # Set to True for development, False for production
+app.config['DEBUG'] = True  # Set to True for development, False for production
 
 
 if app.config['DEBUG']:
