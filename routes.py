@@ -3,10 +3,26 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from datetime import datetime, time
 from functools import wraps
+import os
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+
+app.config['DEBUG'] = False  # Set to True for development, False for production
+
+
+if app.config['DEBUG']:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+else:
+    # Pegar do environment variable DATABASE_URL MYSQL
+    db_url = os.environ.get('DATABASE_URL', 'mysql://afr04:La12345@mysql20-farm1.kinghost.net:3306/afr04')
+    
+    # Tratamento preventivo: Garante que a URL use o driver correto (mysql+pymysql)
+    if db_url.startswith("mysql://"):
+        db_url = db_url.replace("mysql://", "mysql+pymysql://", 1)
+        
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -137,7 +153,6 @@ def register():
     else:
         return render_template('register.html', dropdown_sectors=dropdown_sectors)
 
-
 @app.route('/create_task_info')
 def create_task_info():
     user = User.query.filter_by(username=session.get('username')).first()
@@ -170,7 +185,6 @@ def create_task_info():
         flash('Error creating task: ' + str(e))
         return redirect(url_for('create_task'))
     
-
 @app.route('/create_task', methods=['GET', 'POST'])
 def create_task():
     user = User.query.filter_by(username=session.get('username')).first()
@@ -273,7 +287,6 @@ def finalize_task(task_id):
         db.session.rollback()
         flash('Error creating task: ' + str(e))
         return redirect(url_for('home'))
-
 
 @app.route('/')
 def home():
@@ -391,6 +404,7 @@ def tasks():
     return render_template('tasks.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=app.config['DEBUG'], use_reloader=False)
 
-
+with app.app_context():
+    db.create_all()

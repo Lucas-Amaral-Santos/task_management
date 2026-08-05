@@ -11,9 +11,9 @@
         <h2>Olá, <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{user.status[-1].status}}">{{user.name}}</span>!</h2>
         <h5 class="text-black-50">{{session.get('username')}}</h5>
 
-        <button><a href="{{ url_for('create_task') }}" class="btn btn-primary btn-lg">Create Task</a></button>
+        <a href="{{ url_for('create_task') }}" class="btn btn-primary btn-lg">Create Task</a>
 
-        <button><a href="{{ url_for('create_task_info') }}" class="btn btn-danger btn-lg">Create Task Info</a></button>
+        <a href="{{ url_for('create_task_info') }}" class="btn btn-danger btn-lg">Create Task Info</a>
 
         <p class="lead">Number of tasks: {{ tasks|length }}</p>
 
