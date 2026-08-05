@@ -5,8 +5,15 @@
         <div class="alert alert-info">{{ message }}</div>
     {% endfor %}
     <div class="jumbo">
-        <h1 class="display-4">Task Management App</h1>
-        <p class="lead">Manage your tasks efficiently and effectively.</p>
+        
+        <div class='d-flex justify-content-center' id='accordionExample'>
+            <image src="{{ url_for('static', filename='images/afr.png') }}" alt="Logo" width="30%" height="30%" class="d-inline-block align-top">
+        </div>
+        <h1 class="display-4">Gerenciador de Tarefas de Informática</h1>
+        <p class="lead">Cadastre um chamado para obter suporte.</p> 
+
+
+
 
         <h2>Olá, <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{user.status[-1].status}}">{{user.name}}</span>!</h2>
         <h5 class="text-black-50">{{session.get('username')}}</h5>
